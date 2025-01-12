@@ -51,34 +51,35 @@ export class TTDevice extends EventEmitter {
   disconnectStatus: number = 0;
   parkStatus: number = 0;
 
-  toJSON(asObject:boolean = false): string | Object {
+  toJSON(asObject: boolean = false): string | Object {
     const temp = new TTDevice();
-    var json = {};
-    
-    // exclude keys that we don't need from the export
+    const json: Record<string, any> = {};
+
+    // Exclude keys that we don't need from the export
     const excludedKeys = new Set([
       "_eventsCount"
     ]);
-    
+
     Object.getOwnPropertyNames(temp).forEach((key) => {
       if (!excludedKeys.has(key)) {
         const val = Reflect.get(this, key);
-        if (typeof val != 'undefined' && ((typeof val == "string" && val != "") || typeof val != "string")) {
-          if ((typeof val) == "object") {
-            if (val.length && val.length > 0) {
-              Reflect.set(json, key, val.toString('hex'));
-            }
-          } else {
+
+        if (typeof val !== "undefined") {
+          if (typeof val === "string" && val.length > 0) {
+            Reflect.set(json, key, val);
+          } else if (val instanceof Buffer) {
+            Reflect.set(json, key, val.toString("hex"));
+          } else if (Array.isArray(val) && val.length > 0) {
+            Reflect.set(json, key, val);
+          } else if (typeof val === "object" && val !== null) {
+            Reflect.set(json, key, JSON.stringify(val));
+          } else if (typeof val !== "object") {
             Reflect.set(json, key, val);
           }
         }
       }
     });
 
-    if (asObject) {
-      return json;
-    } else {
-      return JSON.stringify(json);
-    }
+    return asObject ? json : JSON.stringify(json);
   }
 }
