@@ -8,7 +8,7 @@
     "dist/**/*"
   ],
   "scripts": {
-    "build": "rm -rf ./dist && tsc",
+    "build": "rimraf ./dist && tsc",
     "prepare": "npm run build",
     "init": "npm run build && node ./examples/init.js",
     "reset": "npm run build && node ./examples/reset.js",
